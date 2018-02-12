@@ -22,3 +22,20 @@ defense - Grid space xrange : [0,1] yrange: [0,1]
 3. Use KNN to label x and y location zone.
 4. data['location'] = results of KNN
 5. data[data.player/ball label == 'ball' and data.event code == 'score'].location = 'BASKET'
+
+
+## Notes
+
+#EVENTMSGTYPE
+#1 - Make 
+#2 - Miss
+#3 - Free Throw
+#4 - Rebound
+#5 - out of bounds / Turnover / Steal
+#6 - Personal Foul
+#7 - Violation
+#8 - Substitution
+#9 - Timeout
+#10 - Jumpball
+#12 - Start Q1?
+#13 - Start Q2?

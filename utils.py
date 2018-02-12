@@ -3,7 +3,7 @@
 ########################################################################
 # Convert all full court coordinates in data to half court coordinates
 ########################################################################
-def half_full_to_half(data):
+def _half_full_to_half(data):
 
     # convert to half court scale
     # note the x_loc and the y_loc are switched in shot charts from movement data (charts are perpendicular)
@@ -23,7 +23,7 @@ def half_full_to_half(data):
 ##############################################################################################################
 # Convert all full court coordinates that occur in other half of court to occur in one half of a full court
 ##############################################################################################################
-def full_to_half_full(data):
+def _full_to_half_full(data):
 
     # first force all points above 47 to their half court counterparts
     data.loc[data.x_loc > 47,'y_loc'] = data.loc[data.x_loc > 47, 'y_loc'].apply(lambda y: 50 - y)
