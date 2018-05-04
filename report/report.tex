@@ -1,3 +1,6 @@
+\PassOptionsToPackage{unicode=true}{hyperref} % options for packages loaded elsewhere
+\PassOptionsToPackage{hyphens}{url}
+%
 \documentclass[]{article}
 \usepackage{lmodern}
 \usepackage{amssymb,amsmath}
@@ -6,12 +9,9 @@
 \ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
   \usepackage[T1]{fontenc}
   \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provides euro and other symbols
 \else % if luatex or xelatex
-  \ifxetex
-    \usepackage{mathspec}
-  \else
-    \usepackage{fontspec}
-  \fi
+  \usepackage{unicode-math}
   \defaultfontfeatures{Ligatures=TeX,Scale=MatchLowercase}
 \fi
 % use upquote if available, for straight quotes in verbatim environments
@@ -21,8 +21,13 @@
 \usepackage[]{microtype}
 \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
 }{}
-\PassOptionsToPackage{hyphens}{url} % url is loaded by hyperref
-\usepackage[unicode=true]{hyperref}
+\IfFileExists{parskip.sty}{%
+\usepackage{parskip}
+}{% else
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt plus 2pt minus 1pt}
+}
+\usepackage{hyperref}
 \hypersetup{
             pdftitle={Stat 363: Final Project},
             pdfauthor={Authors: Woods Connell, Hannah Knight, Charles Wong, and Samuel Helms},
@@ -31,7 +36,7 @@
 \urlstyle{same}  % don't use monospace font for urls
 \usepackage{longtable,booktabs}
 % Fix footnotes in tables (requires footnote package)
-\IfFileExists{footnote.sty}{\usepackage{footnote}\makesavenoteenv{long table}}{}
+\IfFileExists{footnote.sty}{\usepackage{footnote}\makesavenoteenv{longtable}}{}
 \usepackage{graphicx,grffile}
 \makeatletter
 \def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
@@ -41,12 +46,6 @@
 % margins by default, and it is still possible to overwrite the defaults
 % using explicit options in \includegraphics[width, height, ...]{}
 \setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
-\IfFileExists{parskip.sty}{%
-\usepackage{parskip}
-}{% else
-\setlength{\parindent}{0pt}
-\setlength{\parskip}{6pt plus 2pt minus 1pt}
-}
 \setlength{\emergencystretch}{3em}  % prevent overfull lines
 \providecommand{\tightlist}{%
   \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
@@ -78,18 +77,20 @@
 \setcounter{tocdepth}{3}
 \tableofcontents
 }
-\section{Introduction}\label{introduction}
+\hypertarget{introduction}{%
+\section{Introduction}\label{introduction}}
 
 It is extremely common to look at statistics like points scored and
 rebounds grabbed when evaluating a basketball player. As much as these
 statistics can tell us about a player, what a player does when he is off
-the ball has potential to say even more: after all, a player only has a
-ball for a fraction of the game. In this report, we use data on NBA
-player's court location, which we sample at a rate of every half second
-of over 300 games from the 2016 season.
+the ball has the potential to say even more: after all, a player only
+has a ball for a fraction of the game. In this report, we use data on
+NBA player's court location, which we sample at a rate of every half
+second of over 300 games from the 2016 season.
 
+\hypertarget{design-and-primary-questions}{%
 \section{Design and Primary
-Questions}\label{design-and-primary-questions}
+Questions}\label{design-and-primary-questions}}
 
 We set out to answer two questions about the movement data and NBA
 players/teams in this paper:
@@ -103,14 +104,15 @@ players/teams in this paper:
   also on a matrix that has each team as a data point and the fourteen
   court locations as features.
 \item
-  We try to detect what effect, if any, being on a team has on the
-  locations players inhabit on the court. Do some teams, like the
-  warriors, spend more time out by the three point line? Do others crowd
-  the basket? We use Multivariate Analysis of Variance to answer these
-  questions.
+  Do some teams, like the warriors, spend more time out by the three
+  point line? Do others crowd the basket? We try to detect what effect,
+  if any, being on a team has on the locations players inhabit on the
+  court. We use Multivariate Analysis of Variance and Linear
+  Discriminant Analysis to answer these questions.
 \end{enumerate}
 
-\section{Data}\label{data}
+\hypertarget{data}{%
+\section{Data}\label{data}}
 
 Movement data is no longer released by the NBA, and so it was collected
 from a public github repository
@@ -126,7 +128,9 @@ repository: https://github.com/samghelms/nba\_movement\_analysis.
 Specifically, you can find the data used for this report in the
 \texttt{data} folder. You can build the datasets used for this analysis
 by running \texttt{make\_data.py}. You can walk through the code to
-create the plots in the following Jupyter notebook: \{INS\_NOTEBOOK\}
+create the plots in the\texttt{pca\ and\ factor\ analysis} jupyter
+notebook in our github repository - (link)
+\url{https://github.com/samghelms/nba_movement_analysis/blob/master/pca\%20and\%20factor\%20analysis.ipynb}.
 
 To winnow the data down, we decided to extract player locations on half
 second intervals. After doing that, we needed to engineer some features
@@ -143,143 +147,144 @@ and striding operations to the data shown below, but this is the set of
 engineered features that the data sources for all the following analyses
 stem from.
 
-\subsection{The features}\label{the-features}
+\hypertarget{the-features}{%
+\subsection{The features}\label{the-features}}
 
 \begin{longtable}[]{@{}lll@{}}
 \toprule
-\begin{minipage}[b]{0.32\columnwidth}\raggedright\strut
+\begin{minipage}[b]{0.32\columnwidth}\raggedright
 Feature\strut
-\end{minipage} & \begin{minipage}[b]{0.13\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[b]{0.12\columnwidth}\raggedright
 Data Type\strut
-\end{minipage} & \begin{minipage}[b]{0.46\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[b]{0.47\columnwidth}\raggedright
 Description\strut
 \end{minipage}\tabularnewline
 \midrule
 \endhead
-\begin{minipage}[t]{0.32\columnwidth}\raggedright\strut
+\begin{minipage}[t]{0.32\columnwidth}\raggedright
 \strut
-\end{minipage} & \begin{minipage}[t]{0.13\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright
 \strut
-\end{minipage} & \begin{minipage}[t]{0.46\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[t]{0.47\columnwidth}\raggedright
 \strut
 \end{minipage}\tabularnewline
-\begin{minipage}[t]{0.32\columnwidth}\raggedright\strut
+\begin{minipage}[t]{0.32\columnwidth}\raggedright
 Offense or Defense\strut
-\end{minipage} & \begin{minipage}[t]{0.13\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright
 Binary\strut
-\end{minipage} & \begin{minipage}[t]{0.46\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[t]{0.47\columnwidth}\raggedright
 \strut
 \end{minipage}\tabularnewline
-\begin{minipage}[t]{0.32\columnwidth}\raggedright\strut
+\begin{minipage}[t]{0.32\columnwidth}\raggedright
 Player name\strut
-\end{minipage} & \begin{minipage}[t]{0.13\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright
 Categorical\strut
-\end{minipage} & \begin{minipage}[t]{0.46\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[t]{0.47\columnwidth}\raggedright
 \strut
 \end{minipage}\tabularnewline
-\begin{minipage}[t]{0.32\columnwidth}\raggedright\strut
+\begin{minipage}[t]{0.32\columnwidth}\raggedright
 Team\strut
-\end{minipage} & \begin{minipage}[t]{0.13\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright
 Categorical\strut
-\end{minipage} & \begin{minipage}[t]{0.46\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[t]{0.47\columnwidth}\raggedright
 \strut
 \end{minipage}\tabularnewline
-\begin{minipage}[t]{0.32\columnwidth}\raggedright\strut
+\begin{minipage}[t]{0.32\columnwidth}\raggedright
 Right Side(R), 8-16 ft.\strut
-\end{minipage} & \begin{minipage}[t]{0.13\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright
 Continuous\strut
-\end{minipage} & \begin{minipage}[t]{0.46\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[t]{0.47\columnwidth}\raggedright
 Count data (number of half second intervals in)\strut
 \end{minipage}\tabularnewline
-\begin{minipage}[t]{0.32\columnwidth}\raggedright\strut
+\begin{minipage}[t]{0.32\columnwidth}\raggedright
 Right Side(R), 16-24 ft.\strut
-\end{minipage} & \begin{minipage}[t]{0.13\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright
 Continuous\strut
-\end{minipage} & \begin{minipage}[t]{0.46\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[t]{0.47\columnwidth}\raggedright
 \strut
 \end{minipage}\tabularnewline
-\begin{minipage}[t]{0.32\columnwidth}\raggedright\strut
+\begin{minipage}[t]{0.32\columnwidth}\raggedright
 Right Side(R), 24+ ft.\strut
-\end{minipage} & \begin{minipage}[t]{0.13\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright
 Continuous\strut
-\end{minipage} & \begin{minipage}[t]{0.46\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[t]{0.47\columnwidth}\raggedright
 \strut
 \end{minipage}\tabularnewline
-\begin{minipage}[t]{0.32\columnwidth}\raggedright\strut
+\begin{minipage}[t]{0.32\columnwidth}\raggedright
 Left Side(L), 8-16 ft.\strut
-\end{minipage} & \begin{minipage}[t]{0.13\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright
 Continuous\strut
-\end{minipage} & \begin{minipage}[t]{0.46\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[t]{0.47\columnwidth}\raggedright
 \strut
 \end{minipage}\tabularnewline
-\begin{minipage}[t]{0.32\columnwidth}\raggedright\strut
+\begin{minipage}[t]{0.32\columnwidth}\raggedright
 Left Side(L), 16-24 ft.\strut
-\end{minipage} & \begin{minipage}[t]{0.13\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright
 Continuous\strut
-\end{minipage} & \begin{minipage}[t]{0.46\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[t]{0.47\columnwidth}\raggedright
 \strut
 \end{minipage}\tabularnewline
-\begin{minipage}[t]{0.32\columnwidth}\raggedright\strut
+\begin{minipage}[t]{0.32\columnwidth}\raggedright
 Left Side(L), 24+ ft.\strut
-\end{minipage} & \begin{minipage}[t]{0.13\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright
 Continuous\strut
-\end{minipage} & \begin{minipage}[t]{0.46\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[t]{0.47\columnwidth}\raggedright
 \strut
 \end{minipage}\tabularnewline
-\begin{minipage}[t]{0.32\columnwidth}\raggedright\strut
+\begin{minipage}[t]{0.32\columnwidth}\raggedright
 Center(C), Less Than 8 ft.\strut
-\end{minipage} & \begin{minipage}[t]{0.13\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright
 Continuous\strut
-\end{minipage} & \begin{minipage}[t]{0.46\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[t]{0.47\columnwidth}\raggedright
 \strut
 \end{minipage}\tabularnewline
-\begin{minipage}[t]{0.32\columnwidth}\raggedright\strut
+\begin{minipage}[t]{0.32\columnwidth}\raggedright
 Center(C), 8-16 ft.\strut
-\end{minipage} & \begin{minipage}[t]{0.13\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright
 Continuous\strut
-\end{minipage} & \begin{minipage}[t]{0.46\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[t]{0.47\columnwidth}\raggedright
 \strut
 \end{minipage}\tabularnewline
-\begin{minipage}[t]{0.32\columnwidth}\raggedright\strut
+\begin{minipage}[t]{0.32\columnwidth}\raggedright
 Center(C), 16-24 ft.\strut
-\end{minipage} & \begin{minipage}[t]{0.13\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright
 Continuous\strut
-\end{minipage} & \begin{minipage}[t]{0.46\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[t]{0.47\columnwidth}\raggedright
 \strut
 \end{minipage}\tabularnewline
-\begin{minipage}[t]{0.32\columnwidth}\raggedright\strut
+\begin{minipage}[t]{0.32\columnwidth}\raggedright
 Center(C), 24+ ft.\strut
-\end{minipage} & \begin{minipage}[t]{0.13\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright
 Continuous\strut
-\end{minipage} & \begin{minipage}[t]{0.46\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[t]{0.47\columnwidth}\raggedright
 \strut
 \end{minipage}\tabularnewline
-\begin{minipage}[t]{0.32\columnwidth}\raggedright\strut
+\begin{minipage}[t]{0.32\columnwidth}\raggedright
 Right Side Center(RC), 16-24 ft.\strut
-\end{minipage} & \begin{minipage}[t]{0.13\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright
 Continuous\strut
-\end{minipage} & \begin{minipage}[t]{0.46\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[t]{0.47\columnwidth}\raggedright
 \strut
 \end{minipage}\tabularnewline
-\begin{minipage}[t]{0.32\columnwidth}\raggedright\strut
+\begin{minipage}[t]{0.32\columnwidth}\raggedright
 Right Side Center(RC), 24+ ft.\strut
-\end{minipage} & \begin{minipage}[t]{0.13\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright
 Continuous\strut
-\end{minipage} & \begin{minipage}[t]{0.46\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[t]{0.47\columnwidth}\raggedright
 \strut
 \end{minipage}\tabularnewline
-\begin{minipage}[t]{0.32\columnwidth}\raggedright\strut
+\begin{minipage}[t]{0.32\columnwidth}\raggedright
 Left Side Center(LC), 16-24 ft.\strut
-\end{minipage} & \begin{minipage}[t]{0.13\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright
 Continuous\strut
-\end{minipage} & \begin{minipage}[t]{0.46\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[t]{0.47\columnwidth}\raggedright
 \strut
 \end{minipage}\tabularnewline
-\begin{minipage}[t]{0.32\columnwidth}\raggedright\strut
+\begin{minipage}[t]{0.32\columnwidth}\raggedright
 Left Side Center(LC), 24+ ft.\strut
-\end{minipage} & \begin{minipage}[t]{0.13\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright
 Continuous\strut
-\end{minipage} & \begin{minipage}[t]{0.46\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[t]{0.47\columnwidth}\raggedright
 \strut
 \end{minipage}\tabularnewline
 \bottomrule
@@ -292,10 +297,12 @@ a half second, a fast-moving player might cover the space of half the
 court. We hope that this error will average out in the long run,
 however.
 
+\hypertarget{descriptive-plots-summary-statistics}{%
 \section{Descriptive plots, summary
-statistics}\label{descriptive-plots-summary-statistics}
+statistics}\label{descriptive-plots-summary-statistics}}
 
-\subsection{Three subsets of the data}\label{three-subsets-of-the-data}
+\hypertarget{three-subsets-of-the-data}{%
+\subsection{Three subsets of the data}\label{three-subsets-of-the-data}}
 
 We aggregate the data to several levels for the different analyses used
 in this report. The results of all three of the aggregations for the
@@ -303,15 +310,17 @@ location data look solid: all have normal distribution of court
 locations and somewhat linear relationships between all pairs of court
 locations. The following sections will go into further detail.
 
-\subsubsection{First subset}\label{first-subset}
+\hypertarget{first-subset}{%
+\subsubsection{First subset}\label{first-subset}}
 
 The first way in which we aggregate the data is to group by team and
 offense/defense status and count the number of half seconds players on
 each team are in specific court locations. We don't want to lump offense
 and defense in with each other, since standing in a court location on
 defense can have a very different meaning than standing in the same
-location on offense. This results in the following distribution of time
-in court locations (chart shown for offense, defense is similar):
+location on offense.
+
+This data is available at \{INS\_LINK\}
 
 The first few data points in the dataset, for teams on offense, look
 like this (some features, like `Right Side Center(RC), 16-24 ft.' have
@@ -320,84 +329,84 @@ look at):
 
 \begin{longtable}[]{@{}llllll@{}}
 \toprule
-\begin{minipage}[b]{0.24\columnwidth}\raggedright\strut
+\begin{minipage}[b]{0.25\columnwidth}\raggedright
 Court location\strut
-\end{minipage} & \begin{minipage}[b]{0.12\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[b]{0.12\columnwidth}\raggedright
 Atlanta Hawks.\strut
-\end{minipage} & \begin{minipage}[b]{0.12\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[b]{0.12\columnwidth}\raggedright
 Boston Celtics\strut
-\end{minipage} & \begin{minipage}[b]{0.10\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[b]{0.10\columnwidth}\raggedright
 Cleveland Cavaliers\strut
-\end{minipage} & \begin{minipage}[b]{0.12\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[b]{0.12\columnwidth}\raggedright
 New Orleans Pelicans\strut
-\end{minipage} & \begin{minipage}[b]{0.12\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[b]{0.12\columnwidth}\raggedright
 Chicago Bulls\strut
 \end{minipage}\tabularnewline
 \midrule
 \endhead
-\begin{minipage}[t]{0.24\columnwidth}\raggedright\strut
+\begin{minipage}[t]{0.25\columnwidth}\raggedright
 Right Side(R), 16-24 ft.\strut
-\end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright
 39441.0\strut
-\end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright
 36185.0\strut
-\end{minipage} & \begin{minipage}[t]{0.10\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[t]{0.10\columnwidth}\raggedright
 33619.0\strut
-\end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright
 37517.0\strut
-\end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright
 33116.0\strut
 \end{minipage}\tabularnewline
-\begin{minipage}[t]{0.24\columnwidth}\raggedright\strut
+\begin{minipage}[t]{0.25\columnwidth}\raggedright
 Left Side(L), 24+ ft.\strut
-\end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright
 30794.0\strut
-\end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright
 32525.0\strut
-\end{minipage} & \begin{minipage}[t]{0.10\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[t]{0.10\columnwidth}\raggedright
 27419.0\strut
-\end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright
 30732.0\strut
-\end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright
 28469.0\strut
 \end{minipage}\tabularnewline
-\begin{minipage}[t]{0.24\columnwidth}\raggedright\strut
+\begin{minipage}[t]{0.25\columnwidth}\raggedright
 Center(C), Less Than 8 ft.\strut
-\end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright
 178075.0\strut
-\end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright
 165085.0\strut
-\end{minipage} & \begin{minipage}[t]{0.10\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[t]{0.10\columnwidth}\raggedright
 132478.0\strut
-\end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright
 152651.0\strut
-\end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright
 152355.0\strut
 \end{minipage}\tabularnewline
-\begin{minipage}[t]{0.24\columnwidth}\raggedright\strut
+\begin{minipage}[t]{0.25\columnwidth}\raggedright
 Right Side Center(RC), 24+ ft.\strut
-\end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright
 126667.0\strut
-\end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright
 130071.0\strut
-\end{minipage} & \begin{minipage}[t]{0.10\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[t]{0.10\columnwidth}\raggedright
 112729.0\strut
-\end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright
 128496.0\strut
-\end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright
 110340.0\strut
 \end{minipage}\tabularnewline
-\begin{minipage}[t]{0.24\columnwidth}\raggedright\strut
+\begin{minipage}[t]{0.25\columnwidth}\raggedright
 Left Side Center(LC), 24+ ft.\strut
-\end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright
 144596.0\strut
-\end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright
 139255.0\strut
-\end{minipage} & \begin{minipage}[t]{0.10\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[t]{0.10\columnwidth}\raggedright
 120485.0\strut
-\end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright
 138640.0\strut
-\end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright
 123351.0\strut
 \end{minipage}\tabularnewline
 \bottomrule
@@ -406,34 +415,39 @@ Left Side Center(LC), 24+ ft.\strut
 We use this data for factor analysis. We also keep track of what team
 each player is on for use in the MANOVA later on.
 
-\subsubsection{Second subset}\label{second-subset}
+\hypertarget{second-subset}{%
+\subsubsection{Second subset}\label{second-subset}}
 
 The second way in which we aggregate the data is to group by player and
 count the number of half seconds each player is within a specific court
 location. We use this data for Factor Analysis and also for MANOVA. The
 layout of the data is similar to the table shown in the section above,
-but is on the level of players, rather than teams.
+but is on the level of players, rather than teams. This data used for
+the factor analysis is available at \{INS\_LINK\}, and the data used for
+the MANOVA at \{INS\_LINK\}.
 
 The following pair plot, on a subset of our player data for defense,
 looks at how well these data fit our assumptions of multivariate
 normality. You can see from the histograms and the scatter plots that
 the data are normally distributed and have somewhat linear relationships
 with each other. This makes us suspect that the data are a good fit for
-multivariate analyses.
+multivariate analyses like MANOVA and linear discriminant analysis.
 
 \begin{figure}
 \centering
-\includegraphics[width=0.80000\textwidth]{player_dist_and_relationships.png}
+\includegraphics[width=0.8\textwidth,height=\textheight]{player_dist_and_relationships.png}
 \caption{Relationships between court locations, and their distributions
 for players on offense}
 \end{figure}
 
+\hypertarget{multivariate-analysis-and-discussion-of-results}{%
 \section{Multivariate Analysis and discussion of
-results}\label{multivariate-analysis-and-discussion-of-results}
+results}\label{multivariate-analysis-and-discussion-of-results}}
 
+\hypertarget{factor-analysis-and-pca-distinguishing-players-and-teams-based-on-court-locations}{%
 \subsection{Factor analysis and PCA: distinguishing players and teams
 based on court
-locations}\label{factor-analysis-and-pca-distinguishing-players-and-teams-based-on-court-locations}
+locations}\label{factor-analysis-and-pca-distinguishing-players-and-teams-based-on-court-locations}}
 
 First, we will use factor analysis to try and identify court locations
 that differentiate teams and players from one another. The results that
@@ -445,7 +459,8 @@ Learn's Factor Analysis implementation, since we could only create the
 plots used below in python (we had to develop a custom plot ourselves
 using python's matplotlib package).
 
-\subsubsection{Players}\label{players}
+\hypertarget{players}{%
+\subsubsection{Players}\label{players}}
 
 First, we ran a PCA to decide how many loadings to use (for the matrices
 of counts for offense and defense separately). A simple elbow plot
@@ -478,7 +493,8 @@ a larger value in the loading vector element corresponding with ``Right
 Side(R), 8-16 ft.'' means that this the play style corresponding with
 this loading characterized by playing a lot in this zone.
 
-\paragraph{Offense}\label{offense}
+\hypertarget{offense}{%
+\paragraph{Offense}\label{offense}}
 
 First, we look at what locations distinguish players from each other on
 offense. The factor analysis seems to suggest that there are two play
@@ -486,7 +502,7 @@ styles that characterize basketball players in the NBA:
 
 \begin{figure}
 \centering
-\includegraphics[width=0.80000\textwidth]{first_4_loadings_players_off.png}
+\includegraphics[width=0.8\textwidth,height=\textheight]{first_4_loadings_players_off.png}
 \caption{Plot of loadings for players on offense}
 \end{figure}
 
@@ -515,7 +531,8 @@ so players of all types pass through the center to get from one side of
 the court to another, not because perimeter players never spend time in
 the center of the back-court.
 
-\paragraph{Defense}\label{defense}
+\hypertarget{defense}{%
+\paragraph{Defense}\label{defense}}
 
 Next, we look at what locations distinguish players from each other on
 defense. A plot of cumulative variance explained for the PCA again
@@ -527,7 +544,7 @@ characteristics.
 
 \begin{figure}
 \centering
-\includegraphics[width=0.80000\textwidth]{first_4_loadings_players_def.png}
+\includegraphics[width=0.8\textwidth,height=\textheight]{first_4_loadings_players_def.png}
 \caption{Plot of loadings for players on defense}
 \end{figure}
 
@@ -556,13 +573,15 @@ characteristics.
   to defend these far-drawn regions of the court.
 \end{itemize}
 
-\subsubsection{Teams}\label{teams}
+\hypertarget{teams}{%
+\subsubsection{Teams}\label{teams}}
 
-\paragraph{Offense}\label{offense-1}
+\hypertarget{offense-1}{%
+\paragraph{Offense}\label{offense-1}}
 
 \begin{figure}
 \centering
-\includegraphics[width=0.80000\textwidth]{first_4_loadings_teams_off.png}
+\includegraphics[width=0.8\textwidth,height=\textheight]{first_4_loadings_teams_off.png}
 \caption{Plot of loadings for teams on offense}
 \end{figure}
 
@@ -588,11 +607,12 @@ like the Houston Rockets and Golden State Warriors, are heavily reliant
 on their perimeter game, and so a relatively smaller amount of the
 variance in the data is explained by playing in these zones.
 
-\paragraph{Defense}\label{defense-1}
+\hypertarget{defense-1}{%
+\paragraph{Defense}\label{defense-1}}
 
 \begin{figure}
 \centering
-\includegraphics[width=0.80000\textwidth]{first_4_loadings_teams_def.png}
+\includegraphics[width=0.8\textwidth,height=\textheight]{first_4_loadings_teams_def.png}
 \caption{Plot of loadings for teams on defense}
 \end{figure}
 
@@ -607,25 +627,110 @@ also might just indicate that some teams don't like to risk jumping in
 the way of some driving to the rim for a dunk, which risks a high-speed
 midair collision.
 
-\subsection{MANOVA: Examining the effect team has on court location for
-players.}\label{manova-examining-the-effect-team-has-on-court-location-for-players.}
+\hypertarget{manova-and-lda-examining-the-effect-team-has-on-court-location-for-players.}{%
+\subsection{MANOVA and LDA: Examining the effect team has on court
+location for
+players.}\label{manova-and-lda-examining-the-effect-team-has-on-court-location-for-players.}}
 
 People often say that NBA teams like the Spurs have distinctive play
 styles--``systems''. This section will try and verify this claim using
-Multivariate Analysis of Variance to search for a relationship between
-team and the locations players stand in on the court.
+Multivariate Analysis of Variance and Linear Discriminant Analysis to
+search for a relationship between team and the locations players stand
+in on the court.
 
-We find\ldots{}
-
-To examine how much of a role the team plays in determining what zones
+We find that there is not sufficient statistical evidence to suggest
+that the group means of teams are different based on the F statistic of
+the MANOVA test when run on offense and defense separately. However,
+when run on the whole dataset, there is sufficient statistical evidence
+to suggest that the group means of teams are different (with an F
+statistic of 2.2e-16). This could be picking up on the differences
+between offensive and defensive playing styles of different teams and
+not locations or it could just be random noise. Therefore, we can
+conclude that team does not play a large role in determining what zones
 people spend time in.
 
-\section{Conclusions and Discussion}\label{conclusions-and-discussion}
+\begin{longtable}[]{@{}llll@{}}
+\toprule
+Description & Wilks & FStatistic & Num\_Observations\tabularnewline
+\midrule
+\endhead
+Defense & 0.268 & 0.669 & 322\tabularnewline
+Offense & 0.272 & 0.766 & 319\tabularnewline
+Both & 0.299 & 2.20E-16 & 641\tabularnewline
+\bottomrule
+\end{longtable}
+
+You can read through the code we used to run LDA and generate our plots
+at the following link:
+\url{https://github.com/samghelms/nba_movement_analysis/blob/master/lda\%20analysis.ipynb}.
+
+Trying to see if the LDA could show us anything at all, we plotted a
+subset of the teams that we knew fairly well and plotted the data points
+against the first two linear discriminants and labeled them with the
+name of the player they represent, to see whether certain players, like
+starters, were being clustered. The results of the LDA still appear to
+be inconclusive, but we did see some evidence of clustering based on the
+discriminants.
+
+The one sign that the LDA model might be learning something detecting
+some latent structure is that the Golden State Warriors are somewhat
+clustered together relative to the other teams on the plot. This would
+make sense, given that 2016 was the year that the warriors set the
+league record for the amount of games won in a season.
+
+\begin{figure}
+\centering
+\includegraphics{LDA_players_teams_offense.png}
+\caption{Plot of first two discriminants for LDA on offense data}
+\end{figure}
+
+We saw even more clustering with the defensive data. This makes sense
+since teams are more likely to have a set defensive scheme, and play a
+more free-flowing offense. This makes the discriminants from the
+offensive plot more credible: the Golden State Warriors were known to
+have a unique offense in 2016.
+
+\begin{figure}
+\centering
+\includegraphics{LDA_players_teams_defense.png}
+\caption{Plot of first two discriminants for LDA on defense data}
+\end{figure}
+
+All in all, it shouldn't be too surprising that the LDA and MANOVA
+struggled with this task: it is likely that there are higher level
+clusters of teams that play similarly. LDA and MANOVA assume that all of
+the classes are different, so they struggle to detect any latent
+variables.
+
+\hypertarget{conclusions-and-discussion}{%
+\section{Conclusions and Discussion}\label{conclusions-and-discussion}}
 
 In conclusion, we find that movement data can characterize player
-styles.
+styles. The biggest differences in play style that highlighted by these
+models is playing on the outside of of three point arc versus playing on
+the inside of the arc. Player locations are, in some sense, the rawest
+form of data available on the NBA, less abstracted than points scored,
+rebounds, or blocks; thus we are able to trust our conclusions from this
+analysis more than an analysis that was based on standard statistics
+like points.
 
-\section{Points for further analysis}\label{points-for-further-analysis}
+We also find that it is hard to discriminate between teams using
+movement data. This could be because all teams essentially stand in the
+same positions on the court for the same number of time, or it could be
+because there are higher level clusters of how teams play that confound
+the analysis. The second option seems especially likely given that many
+coaches in the NBA start out working as assistants for other coaches.
+
+The models used in our analyses are not very complex, and as a result,
+the conclusions we can make are not very deep. Getting such interesting
+and interpretable results with simple methods like factor analysis is
+very encouraging for further analyses of these movement data; with more
+flexible models, such as a neural network, even deeper conclusions could
+possibly be drawn.
+
+\hypertarget{points-for-further-analysis}{%
+\section{Points for further
+analysis}\label{points-for-further-analysis}}
 
 Although looking at where players were at a single point in time told us
 a lot about NBA games, looking at their transitions could potentially
@@ -637,15 +742,15 @@ had time and space for another analysis, we would like to delve into
 
 It would also be interesting for someone with more in depth knowledge of
 players in the NBA to go through and inspect what factors specific
-players scored high in. Would a player like Stephen Curry, the NBA MVP
-who is known for his three point shooting, have high factor scores with
-respect to zones outside of the three point arc?
+players scored high in. Would a player like Stephen Curry, the NBA's
+former most valuable player, who is known for his three point shooting,
+have high factor scores with respect to zones outside of the three point
+arc?
 
-\section{Data}\label{data-1}
+\hypertarget{data-1}{%
+\section{Data}\label{data-1}}
 
 Data is available in the \texttt{data} folder of the following github
 repository: \url{https://github.com/samghelms/nba_movement_analysis}.
-The following notebook walks through the analyses we used to create the
-plots in this report.
 
 \end{document}

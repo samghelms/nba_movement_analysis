@@ -151,12 +151,6 @@ The defensive loadings show that some teams rely heavily on their interior defen
 
 People often say that NBA teams like the Spurs have distinctive play styles--"systems". This section will try and verify this claim using Multivariate Analysis of Variance and Linear Discriminant Analysis to search for a relationship between team and the locations players stand in on the court.
 
-### Manova
-
-To examine how much of a role the team plays in determining what zones people spend time in, we started with Multivariate Analysis of Variance. We found no significant differences in time spent in different court locations that could be explained by team.
-
-### LDA 
-
 We find that there is not sufficient statistical evidence to suggest that the group means of teams are different based on the F statistic of the MANOVA test when run on offense and defense separately. However, when run on the whole dataset, there is sufficient statistical evidence to suggest that the group means of teams are different (with an F statistic of 2.2e-16). This could be picking up on the differences between offensive and defensive playing styles of different teams and not locations or it could just be random noise. Therefore, we can conclude that team does not play a large role in determining what zones people spend time in.
 
 | Description | Wilks | FStatistic | Num_Observations | 
