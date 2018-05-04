@@ -3,7 +3,7 @@
 
 # Introduction
 
-It is extremely common to look at statistics like points scored and rebounds grabbed when evaluating a basketball player. As much as these statistics can tell us about a player, what a player does when he is off the ball has potential to say even more: after all, a player only has a ball for a fraction of the game. In this report, we use data on NBA player's court location, which we sample at a rate of every half second of over 300 games from the 2016 season. 
+It is extremely common to look at statistics like points scored and rebounds grabbed when evaluating a basketball player. As much as these statistics can tell us about a player, what a player does when he is off the ball has the potential to say even more: after all, a player only has a ball for a fraction of the game. In this report, we use data on NBA player's court location, which we sample at a rate of every half second of over 300 games from the 2016 season. 
 
 # Design and Primary Questions
 
@@ -151,15 +151,40 @@ The defensive loadings show that some teams rely heavily on their interior defen
 
 People often say that NBA teams like the Spurs have distinctive play styles--"systems". This section will try and verify this claim using Multivariate Analysis of Variance and Linear Discriminant Analysis to search for a relationship between team and the locations players stand in on the court.
 
-You can read through the code we used to run MANOVA and LDA at the following link: {INS_HANNAH_NB_LINK}
+### Manova
 
-According to MANOVA, only {INS_VAR} and {INS_VAR} are significantly different among teams
+To examine how much of a role the team plays in determining what zones people spend time in, we started with Multivariate Analysis of Variance. We found no significant differences in time spent in different court locations that could be explained by team.
 
-To examine how much of a role the team plays in determining what zones people spend time in.
+### LDA 
+
+We find that there is not sufficient statistical evidence to suggest that the group means of teams are different based on the F statistic of the MANOVA test when run on offense and defense separately. However, when run on the whole dataset, there is sufficient statistical evidence to suggest that the group means of teams are different (with an F statistic of 2.2e-16). This could be picking up on the differences between offensive and defensive playing styles of different teams and not locations or it could just be random noise. Therefore, we can conclude that team does not play a large role in determining what zones people spend time in.
+
+| Description | Wilks | FStatistic | Num_Observations | 
+|-------------|-------|------------|------------------| 
+| Defense     | 0.268 | 0.669      | 322              | 
+| Offense     | 0.272 | 0.766      | 319              | 
+| Both        | 0.299 | 2.20E-16   | 641              | 
+
+
+You can read through the code we used to run LDA and generate our plots at the following link: [https://github.com/samghelms/nba_movement_analysis/blob/master/lda%20analysis.ipynb](https://github.com/samghelms/nba_movement_analysis/blob/master/lda%20analysis.ipynb).
+
+Trying to see if the LDA could show us anything at all, we plotted a subset of the teams that we knew fairly well and plotted the data points against the first two linear discriminants and labeled them with the name of the player they represent, to see whether certain players, like starters, were being clustered. The results of the LDA still appear to be inconclusive, but we did see some evidence of clustering based on the discriminants.
+
+The one sign that the LDA model might be learning something detecting some latent structure is that the Golden State Warriors are somewhat clustered together relative to the other teams on the plot. This would make sense, given that 2016 was the year that the warriors set the league record for the amount of games won in a season.
+
+![Plot of first two discriminants for LDA on offense data](LDA_players_teams_offense.png)
+
+We saw even more clustering with the defensive data. This makes sense since teams are more likely to have a set defensive scheme, and play a more free-flowing offense. This makes the discriminants from the offensive plot more credible: the Golden State Warriors were known to have a unique offense in 2016.
+
+![Plot of first two discriminants for LDA on defense data](LDA_players_teams_defense.png)
+
+All in all, it shouldn't be too surprising that the LDA and MANOVA struggled with this task: it is likely that there are higher level clusters of teams that play similarly. LDA and MANOVA assume that all of the classes are different, so they struggle to detect any latent variables.
 
 # Conclusions and Discussion
 
 In conclusion, we find that movement data can characterize player styles. The biggest differences in play style that highlighted by these models is playing on the outside of of three point arc versus playing on the inside of the arc. Player locations are, in some sense, the rawest form of data available on the NBA, less abstracted than points scored, rebounds, or blocks; thus we are able to trust our conclusions from this analysis more than an analysis that was based on standard statistics like points. 
+
+We also find that it is hard to discriminate between teams using movement data. This could be because all teams essentially stand in the same positions on the court for the same number of time, or it could be because there are higher level clusters of how teams play that confound the analysis. The second option seems especially likely given that many coaches in the NBA start out working as assistants for other coaches.
 
 The models used in our analyses are not very complex, and as a result, the conclusions we can make are not very deep. Getting such interesting and interpretable results with simple methods like factor analysis is very encouraging for further analyses of these movement data; with more flexible models, such as a neural network, even deeper conclusions could possibly be drawn.
 
@@ -171,4 +196,4 @@ It would also be interesting for someone with more in depth knowledge of players
 
 # Data
 
-Data is available in the `data` folder of the following github repository: [https://github.com/samghelms/nba_movement_analysis](https://github.com/samghelms/nba_movement_analysis). The following notebook walks through the analyses we used to create the plots in this report.
+Data is available in the `data` folder of the following github repository: [https://github.com/samghelms/nba_movement_analysis](https://github.com/samghelms/nba_movement_analysis).
