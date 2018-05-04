@@ -79,8 +79,8 @@ class ZoneClassifier:
         # Use KNN Model to label full converted movement set
         ######################################################################
         # read data and rename columns
-        data = _full_to_half_full(data)
-        data = _half_full_to_half(data)
+        # data = _full_to_half_full(data)
+        # data = _half_full_to_half(data)
         data[['LOC_X','LOC_Y']] = data[['x_loc','y_loc']]
 
         # predict and label shot zones

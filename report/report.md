@@ -3,7 +3,7 @@
 
 # Introduction (Background, motivation) – a few paragraphs at most.
 
-It is extremely common to look at statistics like points scored and rebounds grabbed when evaluating a basketball player. As much as these statistics can tell us about a player, what a player does when he is off the ball has potential to say even more: after all, a player only has a ball for a fraction of the game. In this report, we use data on NBA player's court location, which we sample at a rate of every half second of over 300 games from the 2016 season.
+It is extremely common to look at statistics like points scored and rebounds grabbed when evaluating a basketball player. As much as these statistics can tell us about a player, what a player does when he is off the ball has potential to say even more: after all, a player only has a ball for a fraction of the game. In this report, we use data on NBA player's court location, which we sample at a rate of every half second of over 300 games from the 2016 season. 
 
 # Design and Primary Questions
 
@@ -17,11 +17,11 @@ We set out to answer two questions about the movement data and NBA players/teams
 
 Movement data is no longer released by the NBA, and so it was collected from a public github repository ([https://github.com/sealneaward/nba-movement-data](https://github.com/sealneaward/nba-movement-data)) that backs the data up. In its raw form, this dataset is large in scale, on the scale of 50 gigabytes. It consists of x and y coordinates for every player on the court and the basketball, sampled on .02 second intervals. The NBA only released data for the 2016 season. Our dataset is comprised of about 300 games from the course of that season.
 
-All of our code for data preparation is hosted in the following git repository
+All of our code for data preparation is hosted in the following git repository: https://github.com/samghelms/nba_movement_analysis. Specifically, you can find the data used for this report in the `data` folder. You can build the datasets used for this analysis by running `make_data.py`. You can walk through the code to create the plots in the following Jupyter notebook: {INS_NOTEBOOK}
 
 To winnow the data down, we decided to extract player locations on half second intervals. After doing that, we needed to engineer some features from the player locations: The raw movement data does not come with zone labels. To get these labels, we used a k-nearest neighbors classifier on a dataset of labeled shots. We used code from the following repository to create these labels: [https://github.com/sealneaward/movement-quadrants](https://github.com/sealneaward/movement-quadrants). The author of this repository created the labels by using labeleld shot logs from Kobe Bryant's NBA career.
 
-The table below summarizes our features. We apply various other grouping and striding operations to the data shown below, but this is the set of engineered features that the dat asources for all the following analyses stem from.
+The table below summarizes our features. We apply various other grouping and striding operations to the data shown below, but this is the set of engineered features that the data sources for all the following analyses stem from.
 
 ## The features
 
@@ -53,11 +53,11 @@ The data is very complete--there aren't many skipped half seconds--so we do not 
 
 ## Three subsets of the data
 
-We aggregate the data to several levels for the different analyses used in this report. The results of all three of the aggregationslook quite for the location data look solid: all have normal-ish distribution of court locations and somewhat linear relationships between all pairs of court locations. The following sections will go into further detail.
+We aggregate the data to several levels for the different analyses used in this report. The results of all three of the aggregations for the location data look solid: all have normal distribution of court locations and somewhat linear relationships between all pairs of court locations. The following sections will go into further detail.
 
 ### First subset 
 
-The first way in which we aggregagate the data is to group by team and offense/defense status and count the number of half seconds players on each team are in specific court locations. We don't want to lump offense and defense in with each other, since standing in a court location on defense can have a very different meaning than standing in the same location on offense. This results in the following distribution of time in court locations (chart shown for offense, defense is similar):
+The first way in which we aggregate the data is to group by team and offense/defense status and count the number of half seconds players on each team are in specific court locations. We don't want to lump offense and defense in with each other, since standing in a court location on defense can have a very different meaning than standing in the same location on offense. This results in the following distribution of time in court locations (chart shown for offense, defense is similar):
 
 The first few data points in the dataset, for teams on offense, look like this (some features, like 'Right Side Center(RC), 16-24 ft.' have been omitted for clarity; there are actually 14 court locations that we look at):
 
@@ -83,11 +83,11 @@ The following pair plot, on a subset of our player data for defense, looks at ho
 
 ## Factor Analysis: distinguishing players and teams based on court locations
 
-First, we will use factor analysis to try and identify court locations that differentiate teams and players from one another. The results that made the most sense came from running factor analysis on a matrix that had been normalized across rows, so that each value corresponding to one of the position parameters represented the probablilty of a player/team being in that position, instead of being a raw count. We used Sci-Kit Learn's Factor Analysis implementation, since we could only create the plots used below in python (we had to develop a custom plot ourselves using python's matplotlib package).
+First, we will use factor analysis to try and identify court locations that differentiate teams and players from one another. The results that made the most sense came from running factor analysis on a matrix that had been normalized across rows, so that each value corresponding to one of the position parameters represented the probability of a player/team being in that position, instead of being a raw count. We used Sci-Kit Learn's Factor Analysis implementation, since we could only create the plots used below in python (we had to develop a custom plot ourselves using python's matplotlib package).
 
 ### Players
 
-First, we ran a PCA to decide how many loadings to use (for the matrices of counts for offense and defense seperately). A simple elbow plot suggested that most of of the variance could be explained by the first two loadings for both offense and defense. Because there are many unique playstyles in the nba, we decided to go ahead and use four components -- explaining the style of a couple players with really unique styles in our model isn't a bad thing.
+First, we ran a PCA to decide how many loadings to use (for the matrices of counts for offense and defense separately). A simple elbow plot suggested that most of of the variance could be explained by the first two loadings for both offense and defense. Because there are many unique play-styles in the NBA, we decided to go ahead and use four components -- explaining the style of a couple players with really unique styles in our model isn't a bad thing.
 
 ![Cumulative explained variance, PCA, on offense data](cum_pca_offense.png )
 
@@ -102,11 +102,11 @@ First, we look at what locations distinguish players from each other on offense.
 
 * The second loading likely represents players like centers, who penetrate the center of the court and attack the rim: It is characterized by large values for zones close to the basket.
 
-* The third loading seems similar to the first, with the addition of the center. It is probably detecting guards and avoidining the noise surrounding many people running through the middle of the court
+* The third loading seems similar to the first, with the addition of the center. It is probably detecting guards and avoiding the noise surrounding many people running through the middle of the court
 
 * The fourth loading seems similar to the second, with the addition of perimeter shooting. It could be telling us that there are players who play in the middle and shoot from the perimeter, even though many of these players, like Joel Embiid, do exist.
 
-It is very interesting to see that perimeter players are not characterized by being in the center backcourt. This is likely because so players of all types pass through the center to get from one side of the court to another, not because perimeter players never spend time in the center of the backcourt.
+It is very interesting to see that perimeter players are not characterized by being in the center back-court. This is likely because so players of all types pass through the center to get from one side of the court to another, not because perimeter players never spend time in the center of the back-court.
 
 ![Plot of loadings for players on offense](first_4_loadings_players_off.png )
 
@@ -119,7 +119,7 @@ The loadings for the factor analysis on defense are much less repetitive than th
 
 * The second loading likely corresponds with players like center who defend the rim and spend a lot of time underneath the basket.
 
-* The third loading, if it is to be trusted, seems to correspond with a free-ranging type of player on defense, with scatterings of hotspots all over the court.
+* The third loading, if it is to be trusted, seems to correspond with a free-ranging type of player on defense, with scatterings of hot spots all over the court.
 
 * The fourth loading seems to be a player heavily focused on defending the perimeter, especially the far right and left regions of the court. It is believable that only certain types of players are likely to defend these regions--a taller player would not want to be drawn so far away from the basket, so it likely falls upon the smaller players to defend these far-drawn regions of the court.
 
@@ -139,13 +139,13 @@ It is interesting to see how much more important interior play is on the team le
 
 #### Defense
 
-The defensive loadings show that some teams rely heavily on their interior defense close to the net, while others (the second loading) have a much more spread out defensive scheme. Loading three is especially interesting, indicating that some teams almost never play defense directly under the net. This could be teams like the Warriors, who don't have an established big man to protect their rim, but do have plenty of players in the 6'6 - 6'9 range who can play around the rim. It also might just indicate that some teams don't like to risk jumping in the way of soome driving to the rim for a dunk, which risks a high-speed midair collision.
+The defensive loadings show that some teams rely heavily on their interior defense close to the net, while others (the second loading) have a much more spread out defensive scheme. Loading three is especially interesting, indicating that some teams almost never play defense directly under the net. This could be teams like the Warriors, who don't have an established big man to protect their rim, but do have plenty of players in the 6'6 - 6'9 range who can play around the rim. It also might just indicate that some teams don't like to risk jumping in the way of some driving to the rim for a dunk, which risks a high-speed midair collision.
 
 ![Plot of loadings for teams on offense](first_4_loadings_teams_def.png )
 
-## Manova: Examining the effect team has on court location for players.
+## MANOVA: Examining the effect team has on court location for players.
 
-People often say that NBA teams like the Spurs have distinctive play styles--"systems". This section will try and verify this claim using Mulitivariate Analysis of Variance to search for a relationship between team and the locations players stand in on the court.
+People often say that NBA teams like the Spurs have distinctive play styles--"systems". This section will try and verify this claim using Multivariate Analysis of Variance to search for a relationship between team and the locations players stand in on the court.
 
 We find...
 
@@ -153,9 +153,14 @@ To examine how much of a role the team plays in determining what zones people sp
 
 # Conclusions and Discussion
 
-In conclusion, we find that movement data can make ... {WOODS}
+In conclusion, we find that movement data can characterize player styles.
 
 # Points for further analysis
 
+Although looking at where players were at a single point in time told us a lot about NBA games, looking at their transitions could potentially tell us even more. This type of data, which would be very high dimensional, would not be a good candidate for factor analysis or PCA, since the number of features would outstrip the number of players or teams. It would, however work very well for clustering analyses. If we had time and space for another analysis, we would like to delve into
 
-# Data itself (on a disk or emailed to me – if data is sensitive, not necessary to send)
+It would also be interesting for someone with more in depth knowledge of players in the NBA to go through and inspect what factors specific players scored high in. Would a player like Stephen Curry, the NBA MVP who is known for his three point shooting, have high factor scores with respect to zones outside of the three point arc? 
+
+# Data
+
+Data is available in the `data` folder of the following github repository: [https://github.com/samghelms/nba_movement_analysis](https://github.com/samghelms/nba_movement_analysis). The following notebook walks through the analyses we used to create the plots in this report.
