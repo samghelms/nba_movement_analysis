@@ -1,6 +1,10 @@
 
 # Intro
 
+This is the repostory of code used for Hannah Knight, Woods Connell, Charles Wong, and Sam Helms's final project in Yale's stat 363 course.
+
+You can find and read the writeup in the the report folder (it is named 'report.md'). You can also download report.pdf from there, if you perfer.
+
 # Helpful resources
 
 ## Explains the schema of our data
@@ -8,9 +12,7 @@ https://danvatterott.com/blog/2016/06/16/creating-videos-of-nba-action-with-spor
 
 ## How we organize
 
-defense - Grid space xrange : [0,1] yrange: [0,1]
-
-
+# 
 ## Pipeline steps:
 
 1. Send request to github, unzip data
