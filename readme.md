@@ -3,7 +3,7 @@
 
 This is the repostory of code used for Hannah Knight, Woods Connell, Charles Wong, and Sam Helms's final project in Yale's stat 363 course.
 
-You can find and read the pdf of our writeup [here](report/report.pdf)
+You can find and read the pdf of our writeup [here](report/report.pdf).
 
 # Introduction
 
