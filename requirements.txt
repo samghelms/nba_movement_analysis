@@ -1,6 +1,6 @@
 appnope==0.1.0
 attrs==17.4.0
-bleach==2.1.2
+bleach==3.3.0
 bokeh==0.12.13
 certifi==2018.1.18
 chardet==3.0.4
