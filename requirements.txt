@@ -46,7 +46,7 @@ psutil==5.4.3
 ptyprocess==0.5.2
 py==1.5.2
 PyGithub==1.36
-Pygments==2.2.0
+Pygments==2.7.4
 PyJWT==1.5.3
 pylzma==0.4.9
 pytest==3.3.2
