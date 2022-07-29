@@ -27,7 +27,7 @@ jupyter-core==4.4.0
 libarchive==0.4.4
 locket==0.2.0
 MarkupSafe==1.0
-mistune==0.8.3
+mistune==2.0.3
 msgpack-python==0.5.1
 nbconvert==5.3.1
 nbformat==4.4.0
